@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -18,6 +19,22 @@ public class DogApiBreedFetcher implements BreedFetcher {
     private final OkHttpClient client = new OkHttpClient();
 
     /**
+     * Make an API call to the specified URL and return the result.
+     * @param url the URL to query
+     * @return the response as a String
+     * @throws IOException if there is a problem connecting to the API
+     */
+    public String run(String url) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        }
+    }
+
+    /**
      * Fetch the list of sub breeds for the given breed from the dog.ceo API.
      * @param breed the breed to fetch sub breeds for
      * @return list of sub breeds for the given breed
@@ -25,11 +42,31 @@ public class DogApiBreedFetcher implements BreedFetcher {
      */
     @Override
     public List<String> getSubBreeds(String breed) {
-        // TODO Task 1: Complete this method based on its provided documentation
-        //      and the documentation for the dog.ceo API. You may find it helpful
-        //      to refer to the examples of using OkHttpClient from the last lab,
-        //      as well as the code for parsing JSON responses.
-        // return statement included so that the starter code can compile and run.
-        return new ArrayList<>();
+        DogApiBreedFetcher example = new DogApiBreedFetcher();
+        String response;
+        try {
+            response = example.run("https://dog.ceo/api/breed/" + breed + "/list");
+            System.out.println(response);
+
+            // Parse the JSON response
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("message");
+
+            // Initialize List<String> from JSONArray
+            List<String> subBreeds = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                subBreeds.add(jsonArray.getString(i));
+            }
+
+            return subBreeds;
+        } catch (IOException | JSONException e) {
+            throw new BreedNotFoundException("Sub-breeds not found");
+        }
+    }
+
+    public static void main(String[] args) {
+        DogApiBreedFetcher example = new DogApiBreedFetcher();
+        String breed = "hound";
+        example.getSubBreeds(breed);
     }
 }
