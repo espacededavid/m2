@@ -41,7 +41,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
      * @throws BreedNotFoundException if the breed does not exist (or if the API call fails for any reason)
      */
     @Override
-    public List<String> getSubBreeds(String breed) {
+    public List<String> getSubBreeds(String breed) throws BreedNotFoundException {
         DogApiBreedFetcher example = new DogApiBreedFetcher();
         String response;
         try {
@@ -64,7 +64,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws BreedNotFoundException {
         DogApiBreedFetcher example = new DogApiBreedFetcher();
         String breed = "hound";
         example.getSubBreeds(breed);
